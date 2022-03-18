@@ -1,12 +1,19 @@
 <template>
   <div>
-    <div v-if="parsedCSVFile">
+    <div v-show="parsedCSVFile">
       <h1 width="">Generate some charts</h1>
       <div class="d-flex flex-wrap">
         <LoadingScreen :isLoading="isLoading" />
 
         <!-- Controls -->
-        <v-card outlined tile elevation="5" width="33%" min-width="350px">
+        <v-card
+          outlined
+          tile
+          elevation="5"
+          width="30%"
+          min-width="350px"
+          class="ma-1"
+        >
           <v-card-title>Controls</v-card-title>
           <v-card outlined tile elevation="3">
             <v-card-subtitle> Display Charts </v-card-subtitle>
@@ -27,7 +34,7 @@
                 :items="labels"
                 item-text="name"
                 v-model="selectedClass"
-                @change="redrawCharts"
+                @change="redrawCharts2"
               ></v-select>
             </v-card-actions>
           </v-card>
@@ -37,12 +44,12 @@
               X:<v-select
                 :items="labels"
                 v-model="selectedX"
-                @change="redrawCharts"
+                @change="redrawCharts2"
               ></v-select>
               Y:<v-select
                 :items="labels"
                 v-model="selectedY"
-                @change="redrawCharts"
+                @change="redrawCharts2"
               ></v-select>
             </v-card-actions>
           </v-card>
@@ -53,17 +60,14 @@
           outlined
           tile
           elevation="5"
-          width="33%"
+          width="30%"
           min-width="350px"
           style="overflow: auto"
           v-show="renderChart[0].visible"
+          class="ma-1"
         >
           <v-card-title>Table</v-card-title>
-          <Plotly
-            :data="graphData.table.data"
-            :layout="graphData.table.layout"
-            :display-mode-bar="false"
-          ></Plotly>
+          <div id="table"></div>
         </v-card>
 
         <!-- Scatter -->
@@ -71,16 +75,14 @@
           outlined
           tile
           elevation="5"
-          width="33%"
+          width="30%"
           min-width="350px"
+          style="overflow: auto"
           v-show="renderChart[1].visible"
+          class="ma-1"
         >
           <v-card-title>Scatter</v-card-title>
-          <Plotly
-            :data="graphData.scatter.data"
-            :layout="graphData.scatter.layout"
-            :display-mode-bar="false"
-          ></Plotly>
+          <div id="scatter" style="width: 100%"></div>
         </v-card>
 
         <!-- Bar -->
@@ -88,16 +90,14 @@
           outlined
           tile
           elevation="5"
-          width="33%"
+          width="30%"
           min-width="350px"
+          style="overflow: auto"
           v-show="renderChart[2].visible"
+          class="ma-1"
         >
           <v-card-title>Histogram</v-card-title>
-          <Plotly
-            :data="graphData.bar.data"
-            :layout="graphData.bar.layout"
-            :display-mode-bar="false"
-          ></Plotly>
+          <div id="bar" style="width: 100%"></div>
         </v-card>
 
         <!-- Pie -->
@@ -105,12 +105,14 @@
           outlined
           tile
           elevation="5"
-          width="33%"
+          width="30%"
           min-width="350px"
+          style="overflow: auto"
           v-show="renderChart[3].visible"
+          class="ma-1"
         >
           <v-card-title>Pie</v-card-title>
-          <Plotly :data="graphData.pie.data" :display-mode-bar="false"></Plotly>
+          <div id="pie" style="width: 100%"></div>
         </v-card>
 
         <!-- Line -->
@@ -118,20 +120,18 @@
           outlined
           tile
           elevation="5"
-          width="33%"
+          width="30%"
           min-width="350px"
+          style="overflow: auto"
           v-show="renderChart[4].visible"
+          class="ma-1"
         >
           <v-card-title>Line</v-card-title>
-          <Plotly
-            :data="graphData.line.data"
-            :layout="graphData.line.layout"
-            :display-mode-bar="false"
-          ></Plotly>
+          <div id="line" style="width: 100%"></div>
         </v-card>
       </div>
     </div>
-    <div v-else>
+    <div v-show="!parsedCSVFile">
       <v-file-input
         accept="text/csv"
         @change="parseInput"
@@ -142,12 +142,11 @@
 </template>
 
 <script>
-import { Plotly } from "vue-plotly";
+import Plotly from "plotly.js-dist-min";
 import LoadingScreen from "../components/LoadingScreen.vue";
 
 export default {
   components: {
-    Plotly,
     LoadingScreen,
   },
   data: () => ({
@@ -233,7 +232,9 @@ export default {
             type: "pie",
           },
         ],
-        layout: {},
+        layout: {
+          autosize: true,
+        },
       },
       line: {
         data: [],
@@ -256,12 +257,13 @@ export default {
   methods: {
     parseInput(input) {
       const reader = new FileReader();
+      this.isLoading = true;
       reader.readAsText(input);
       reader.onload = (a) => {
         this.parsedCSVFile = a.target.result;
         this.parseIntoTable(this.parsedCSVFile);
         this.redrawCharts(this.parsedCSVFile);
-        console.log(this.parsedCSVFile);
+        setTimeout(() => this.redrawCharts2(), 500);
       };
     },
     loadCSVData(url) {
@@ -443,7 +445,38 @@ export default {
       this.parseIntoScatter(data);
       this.parseIntoLine(data);
       this.parseIntoBar(data);
+      this.plotCharts();
       this.isLoading = false;
+    },
+    redrawCharts2() {
+      //Redraw logic goes here
+      this.isLoading = true;
+      //this.parseIntoTable(data);
+      this.parseIntoPie(this.parsedCSVFile);
+      this.parseIntoScatter(this.parsedCSVFile);
+      this.parseIntoLine(this.parsedCSVFile);
+      this.parseIntoBar(this.parsedCSVFile);
+      this.plotCharts();
+      this.isLoading = false;
+    },
+    plotCharts() {
+      Plotly.newPlot(
+        "table",
+        this.graphData.table.data,
+        this.graphData.table.layout
+      );
+      Plotly.newPlot("pie", this.graphData.pie.data, this.graphData.pie.layout);
+      Plotly.newPlot(
+        "scatter",
+        this.graphData.scatter.data,
+        this.graphData.scatter.layout
+      );
+      Plotly.newPlot(
+        "line",
+        this.graphData.line.data,
+        this.graphData.line.layout
+      );
+      Plotly.newPlot("bar", this.graphData.bar.data, this.graphData.bar.layout);
     },
   },
 };
