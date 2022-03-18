@@ -9,6 +9,11 @@ export default {
   data: () => ({
     test: null,
   }),
+  created() {
+    fetch("https://corona.lmao.ninja/v2/historical/Brunei?lastdays=30")
+      .then((response) => response.json())
+      .then((data) => console.log(JSON.stringify(data)));
+  },
   methods: {
     atest: (e) => {
       const reader = new FileReader();
