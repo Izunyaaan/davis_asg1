@@ -6,9 +6,6 @@
 
 <script>
 export default {
-  mounted: () => {
-    document.title = "Test";
-  },
   data: () => ({
     test: null,
   }),
