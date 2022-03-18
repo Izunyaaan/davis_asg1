@@ -1,22 +1,30 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import PreloadCSV from '../views/PreloadedCSV.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    name: 'Loaded from CSV',
+    component: PreloadCSV
   },
   {
-    path: '/about',
-    name: 'about',
+    path: '/api',
+    name: 'Loaded from API',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    component: () => import(/* webpackChunkName: "about" */ '../views/PreloadedAPI.vue')
+  },
+  {
+    path: '/loadCSV',
+    name: 'Load a CSV',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import(/* webpackChunkName: "about" */ '../views/LoadCSV.vue')
   }
 ]
 
