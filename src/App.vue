@@ -58,8 +58,8 @@ export default {
     drawer: null,
     links: [
       { name: "Loaded from CSV", icon: "mdi-file-delimited", route: "/" },
-      { name: "Loaded from API", icon: "mdi-cloud-download", route: "/" },
-      { name: "Load a CSV", icon: "mdi-upload", route: "/" },
+      { name: "Loaded from API", icon: "mdi-cloud-download", route: "/api" },
+      { name: "Load a CSV", icon: "mdi-upload", route: "/loadCSV" },
     ],
   }),
   methods: {},
