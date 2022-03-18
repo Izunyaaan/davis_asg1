@@ -54,15 +54,15 @@ export default {
     Plotly,
   },
   created() {
-    // Simple POST request with a JSON body using fetch
+    // Simple GET request
     const requestOptions = {
       method: "GET",
     };
     fetch(
-      "https://corona.lmao.ninja/v2/historical/Brunei?lastdays=30",
+      "https://raw.githubusercontent.com/Izunyaaan/davis_asg1/main/src/assets/data_cleaned_2021.csv",
       requestOptions
     )
-      .then((response) => response.json())
+      .then((response) => response.text())
       .then((data) => console.log(data));
   },
   data: () => ({
